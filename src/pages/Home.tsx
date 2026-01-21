@@ -5,6 +5,7 @@ import { TrendingUp, Activity, ArrowRight, Wallet, Share2 } from 'lucide-react'
 import { useLuffaWallet } from '../hooks/useLuffaWallet'
 import { useRWAData } from '../hooks/useRWAData'
 import { useLuffaShare } from '../hooks/useLuffaShare'
+import type { RWAProtocol } from '../types/rwa'
 
 export function Home() {
     const navigate = useNavigate()
@@ -114,7 +115,7 @@ export function Home() {
                     </div>
                 ) : (
                     <div className="space-y-3">
-                        {topProtocols.map((protocol) => (
+                        {topProtocols.map((protocol: RWAProtocol) => (
                             <Card key={protocol.id} className="flex justify-between items-center p-4 active:scale-[0.98] transition-transform cursor-pointer">
                                 <div>
                                     <h4 className="font-bold text-white">{protocol.name}</h4>

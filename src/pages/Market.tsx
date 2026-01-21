@@ -1,23 +1,27 @@
 import { useState, useMemo } from 'react'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
-import { ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown, ExternalLink } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-
-// Mock Data
-const MOCK_PROTOCOLS = [
-    { id: 1, name: 'Ondo US Dollar', symbol: 'USDY', category: 'Treasury', tvl: 450000000, apy: 5.1, risk: 'Low', chain: 'Ethereum' },
-    { id: 2, name: 'MatrixDock', symbol: 'STBT', category: 'Treasury', tvl: 120000000, apy: 5.3, risk: 'Low', chain: 'Ethereum' },
-    { id: 3, name: 'Goldfinch', symbol: 'GFI', category: 'Private Credit', tvl: 89000000, apy: 12.5, risk: 'High', chain: 'Ethereum' },
-    { id: 4, name: 'Maple Finance', symbol: 'MPL', category: 'Private Credit', tvl: 150000000, apy: 10.2, risk: 'Med', chain: 'Solana' },
-    { id: 5, name: 'RealT', symbol: 'RE', category: 'Real Estate', tvl: 45000000, apy: 9.1, risk: 'Med', chain: 'Gnosis' },
-    { id: 6, name: 'Backed Finance', symbol: 'bIB01', category: 'Treasury', tvl: 35000000, apy: 4.8, risk: 'Low', chain: 'Base' },
-]
+import { useRWAData } from '../hooks/useRWAData'
 
 export function Market() {
     const navigate = useNavigate()
+    const { protocols, isLoading } = useRWAData()
     const [filter, setFilter] = useState('All')
     const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null)
+
+    const formatTVL = (tvl: number) => {
+        if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(2)}B`
+        if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(1)}M`
+        return `$${tvl.toLocaleString()}`
+    }
+
+    const getRiskLevel = (apy: number) => {
+        if (apy < 6) return 'Low'
+        if (apy < 10) return 'Med'
+        return 'High'
+    }
 
     const handleSort = (key: string) => {
         let direction: 'asc' | 'desc' = 'desc'
@@ -28,7 +32,7 @@ export function Market() {
     }
 
     const filteredData = useMemo(() => {
-        let data = [...MOCK_PROTOCOLS]
+        let data = [...protocols]
 
         // Filter
         if (filter !== 'All') {
@@ -48,7 +52,7 @@ export function Market() {
         }
 
         return data
-    }, [filter, sortConfig])
+    }, [protocols, filter, sortConfig])
 
     return (
         <div className="space-y-4 pb-20">
@@ -89,46 +93,82 @@ export function Market() {
             </div>
 
             {/* List */}
-            <div className="space-y-3">
-                {filteredData.map(item => (
-                    <Card key={item.id} className="active:scale-[0.99] transition-transform" onClick={() => navigate(`/protocol/${item.id}`)}>
-                        <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold text-text-secondary border border-gray-700">
-                                    {item.symbol[0]}
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-text-primary">{item.name}</h3>
-                                    <div className="flex gap-2 text-xs text-text-secondary mt-0.5">
-                                        <span className="bg-surface border border-gray-700 px-1.5 rounded">{item.category}</span>
-                                        <span>{item.chain}</span>
+            {isLoading ? (
+                <div className="space-y-3">
+                    {[1, 2, 3, 4, 5].map(i => (
+                        <div key={i} className="p-4 bg-surface/80 rounded-xl animate-pulse">
+                            <div className="flex justify-between">
+                                <div className="flex gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gray-700"></div>
+                                    <div>
+                                        <div className="h-4 bg-gray-700 rounded w-32 mb-2"></div>
+                                        <div className="h-3 bg-gray-700 rounded w-24"></div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-accent font-bold text-lg">{item.apy}%</p>
-                                <p className="text-xs text-text-secondary">APY</p>
+                                <div className="h-6 bg-gray-700 rounded w-16"></div>
                             </div>
                         </div>
+                    ))}
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    {filteredData.map(protocol => {
+                        const risk = getRiskLevel(protocol.apy)
+                        return (
+                            <Card key={protocol.id} className="active:scale-[0.99] transition-transform cursor-pointer">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold text-text-secondary border border-gray-700">
+                                            {protocol.name[0]}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-bold text-text-primary">{protocol.name}</h3>
+                                            <div className="flex gap-2 text-xs text-text-secondary mt-0.5">
+                                                <span className="bg-surface border border-gray-700 px-1.5 rounded">{protocol.category}</span>
+                                                <span>{protocol.chain}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-accent font-bold text-lg">{protocol.apy.toFixed(1)}%</p>
+                                        <p className="text-xs text-text-secondary">APY</p>
+                                    </div>
+                                </div>
 
-                        <div className="mt-3 pt-3 border-t border-gray-800 flex justify-between items-center text-sm">
-                            <div>
-                                <span className="text-text-secondary text-xs block">TVL</span>
-                                <span className="text-text-primary font-medium">${(item.tvl / 1000000).toFixed(1)}M</span>
-                            </div>
-                            <div>
-                                <span className="text-text-secondary text-xs block text-right">Risk</span>
-                                <span className={`px-2 py-0.5 rounded text-xs ${item.risk === 'Low' ? 'bg-blue-500/20 text-blue-400' :
-                                    item.risk === 'Med' ? 'bg-yellow-500/20 text-yellow-400' :
-                                        'bg-red-500/20 text-red-400'
-                                    }`}>
-                                    {item.risk}
-                                </span>
-                            </div>
-                        </div>
-                    </Card>
-                ))}
-            </div>
+                                <div className="mt-3 pt-3 border-t border-gray-800 flex justify-between items-center text-sm">
+                                    <div>
+                                        <span className="text-text-secondary text-xs block">TVL</span>
+                                        <span className="text-text-primary font-medium">{formatTVL(protocol.tvl)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <div className="text-right">
+                                            <span className="text-text-secondary text-xs block">Risk</span>
+                                            <span className={`px-2 py-0.5 rounded text-xs ${
+                                                risk === 'Low' ? 'bg-blue-500/20 text-blue-400' :
+                                                risk === 'Med' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                'bg-red-500/20 text-red-400'
+                                            }`}>
+                                                {risk}
+                                            </span>
+                                        </div>
+                                        {protocol.website && (
+                                            <a
+                                                href={protocol.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-400 hover:text-blue-300"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                <ExternalLink size={14} />
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
+                        )
+                    })}
+                </div>
+            )}
         </div>
     )
 }

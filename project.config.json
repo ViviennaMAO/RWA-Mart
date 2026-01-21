@@ -1,0 +1,48 @@
+{
+	"projectid": "mpwmj3iygswjeyuq_RWA%20Mart",
+	"setting": {
+		"urlCheck": false,
+		"es6": true,
+		"postcss": true,
+		"minified": true,
+		"newFeature": true,
+		"autoAudits": false,
+		"nodeModules": true,
+		"uploadWithSourceMap": true,
+		"uglifyFileName": true,
+		"remoteDebugLogEnable": true,
+		"prefetch": false
+	},
+	"LuffaToolsLibVersion": "2.3.1",
+	"createTime": 1768940246495,
+	"accessTime": 1768940246495,
+	"packOptions": {
+		"ignore": []
+	},
+	"debugOptions": {
+		"hidedInDevtools": []
+	},
+	"LuffaToolsappid": "mpwmj3iygswjeyuq",
+	"projectname": "RWA%20Mart",
+	"miniprogramRoot": "miniprogram/",
+	"scripts": {},
+	"compileType": "miniprogram",
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"currentL": -1,
+			"list": []
+		},
+		"miniprogram": {
+			"current": -1,
+			"list": []
+		}
+	}
+}

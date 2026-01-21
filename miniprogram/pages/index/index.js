@@ -1,31 +1,21 @@
-const config = require('../../config.js')
-
 Page({
     data: {
-        url: config.webViewUrl
+        url: ''
     },
-    onLoad(options) {
-        console.log('Loading web-view with URL:', this.data.url)
+    onLoad() {
+        // Check if running in dev tool
+        const accountInfo = wx.getAccountInfoSync();
+        const env = accountInfo.miniProgram.envVersion;
 
-        // 如果从其他页面传递了 URL 参数，使用传递的 URL
-        if (options.url) {
-            this.setData({
-                url: decodeURIComponent(options.url)
-            })
+        // In real development, you would check env. 
+        // For local dev, we point to localhost.
+        // Replace with your local IP if testing on device.
+        let url = 'http://localhost:5173/';
+
+        if (env === 'release') {
+            url = 'https://your-production-url.com/';
         }
-    },
-    onShow() {
-        console.log('Page shown')
-    },
-    onMessage(e) {
-        console.log('Message from web-view:', e.detail.data)
-    },
-    onError(e) {
-        console.error('Web-view error:', e)
-        wx.showModal({
-            title: '加载失败',
-            content: '页面加载失败，请检查网络连接或联系管理员',
-            showCancel: false
-        })
+
+        this.setData({ url });
     }
 })

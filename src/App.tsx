@@ -1,24 +1,23 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { Home } from './pages/Home'
-import { Market } from './pages/Market'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Layout } from './components/layout/Layout';
+import { Home } from './pages/Home';
+import { Discovery } from './pages/Discovery';
+import { Portfolio } from './pages/Portfolio';
+import { ProtocolDetails } from './pages/ProtocolDetails';
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-background text-text-primary p-4 max-w-md mx-auto relative overflow-hidden">
-        {/* Background Gradients */}
-        <div className="fixed -top-20 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="fixed top-40 -right-20 w-64 h-64 bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
-
-        <div className="relative z-10">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/market" element={<Market />} />
-          </Routes>
-        </div>
-      </div>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="discovery" element={<Discovery />} />
+          <Route path="protocol/:protocolId" element={<ProtocolDetails />} />
+          <Route path="portfolio" element={<Portfolio />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

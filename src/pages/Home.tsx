@@ -1,138 +1,102 @@
-import { useNavigate } from 'react-router-dom'
-import { Card } from '../components/Card'
-import { Button } from '../components/Button'
-import { TrendingUp, Activity, ArrowRight, Wallet, Share2 } from 'lucide-react'
-import { useLuffaWallet } from '../hooks/useLuffaWallet'
-import { useRWAData } from '../hooks/useRWAData'
-import { useLuffaShare } from '../hooks/useLuffaShare'
-import type { RWAProtocol } from '../types/rwa'
+import { CATEGORIES, PROTOCOLS } from '../mocks/rwaData';
+import { Badge } from '../components/ui/Badge';
+import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Home() {
-    const navigate = useNavigate()
-    const { address, isConnected, isLoading: walletLoading, connect, formatAddress } = useLuffaWallet()
-    const { marketData, getTopProtocols, isLoading: dataLoading } = useRWAData()
-    const { shareMarketData } = useLuffaShare()
-
-    const topProtocols = getTopProtocols(3)
-
-    const formatTVL = (tvl: number) => {
-        if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(2)}B`
-        if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(0)}M`
-        return `$${tvl.toLocaleString()}`
-    }
-
-    const handleShare = async () => {
-        if (marketData) {
-            const result = await shareMarketData(
-                formatTVL(marketData.totalTVL),
-                marketData.totalProtocols
-            )
-            if (result.success) {
-                console.log('Shared successfully')
-            }
-        }
-    }
+    const topProtocols = PROTOCOLS.slice(0, 3);
 
     return (
-        <div className="space-y-6 pb-20">
+        <div className="p-4 space-y-6 pb-24">
             {/* Header */}
-            <header className="flex justify-between items-center">
+            <header className="flex justify-between items-center pt-2">
                 <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-yellow-400 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">
                         RWA Mart
                     </h1>
-                    <p className="text-xs text-gray-400">Real World Assets on Chain</p>
+                    <p className="text-xs text-slate-400">Yield from the Real World</p>
                 </div>
-                {walletLoading ? (
-                    <Button variant="secondary" size="sm" className="bg-surface/50 border-gray-800" disabled>
-                        Loading...
-                    </Button>
-                ) : isConnected && address ? (
-                    <Button variant="secondary" size="sm" className="bg-surface/50 border-gray-800">
-                        {formatAddress(address)}
-                    </Button>
-                ) : (
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        className="bg-surface/50 border-gray-800 flex items-center gap-1"
-                        onClick={connect}
-                    >
-                        <Wallet size={14} />
-                        Connect
-                    </Button>
-                )}
+                {/* Simple Wallet Status Indicator (Mock) */}
+                <div className="w-8 h-8 rounded-full bg-surface border border-white/10 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                </div>
             </header>
 
-            {/* Total RWA Value */}
-            <section className="text-center py-4 relative">
-                <p className="text-text-secondary text-sm mb-1">Total RWA Value</p>
-                {dataLoading ? (
-                    <div className="animate-pulse">
-                        <div className="h-10 bg-gray-700 rounded w-48 mx-auto mb-2"></div>
-                        <div className="h-4 bg-gray-700 rounded w-24 mx-auto"></div>
-                    </div>
-                ) : marketData ? (
-                    <>
-                        <h2 className="text-4xl font-bold text-white tracking-tight">
-                            {formatTVL(marketData.totalTVL)}
-                        </h2>
-                        <div className={`flex items-center justify-center gap-1 text-sm mt-1 ${marketData.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            <TrendingUp size={16} />
-                            <span>{marketData.change24h >= 0 ? '+' : ''}{marketData.change24h.toFixed(1)}% (24h)</span>
-                        </div>
-                        <button
-                            onClick={handleShare}
-                            className="absolute top-0 right-0 p-2 text-blue-400 hover:text-blue-300 transition-colors"
-                            aria-label="Share market data"
-                        >
-                            <Share2 size={18} />
-                        </button>
-                    </>
-                ) : (
-                    <p className="text-text-secondary">Unable to load data</p>
-                )}
+            {/* TVL Hero Section */}
+            <section className="glass-panel p-6 rounded-2xl border-white/10 relative overflow-hidden group">
+                <div className="absolute top-[-50%] right-[-50%] w-64 h-64 bg-primary/10 blur-[80px] rounded-full group-hover:bg-primary/20 transition-colors duration-700" />
+
+                <p className="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Value Locked</p>
+                <div className="mt-1 flex items-baseline gap-3">
+                    <span className="text-4xl font-bold font-display text-white">$2.45B</span>
+                    <Badge variant="success" className="flex items-center gap-1">
+                        +2.4% <span className="text-[8px] opacity-70">24H</span>
+                    </Badge>
+                </div>
             </section>
 
-            {/* Hot Protocols */}
-            <section>
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-                        <Activity size={16} className="text-accent" /> Hot Protocols
-                    </h3>
-                    <button onClick={() => navigate('/market')} className="text-xs text-blue-400 flex items-center gap-1">
-                        View All <ArrowRight size={12} />
-                    </button>
-                </div>
-                {dataLoading ? (
-                    <div className="space-y-3">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="p-4 bg-surface/80 rounded-xl animate-pulse">
-                                <div className="h-4 bg-gray-700 rounded w-32 mb-2"></div>
-                                <div className="h-3 bg-gray-700 rounded w-24"></div>
+            {/* Market Composition */}
+            <section className="space-y-3">
+                <h3 className="text-sm font-bold text-slate-200 px-1">Market Sectors</h3>
+                <div className="grid grid-cols-2 gap-3">
+                    {CATEGORIES.map((cat) => (
+                        <div key={cat.id} className="glass-panel p-4 rounded-xl flex flex-col justify-between h-24 hover:bg-white/5 transition-colors cursor-pointer">
+                            <div className="flex justify-between items-start">
+                                <span className="text-xl">{cat.icon}</span>
+                                <span className={cat.change.startsWith('+') ? "text-emerald-400 text-xs" : "text-rose-400 text-xs"}>
+                                    {cat.change}
+                                </span>
                             </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {topProtocols.map((protocol: RWAProtocol) => (
-                            <Card key={protocol.id} className="flex justify-between items-center p-4 active:scale-[0.98] transition-transform cursor-pointer">
-                                <div>
-                                    <h4 className="font-bold text-white">{protocol.name}</h4>
-                                    <div className="flex gap-2 text-xs mt-1">
-                                        <span className="text-text-secondary">TVL: {formatTVL(protocol.tvl)}</span>
-                                        <span className="text-blue-400 bg-blue-400/10 px-1 rounded">{protocol.category}</span>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-xs text-slate-400">{cat.label}</p>
+                                    {/* @ts-ignore */}
+                                    {cat.badge && (
+                                        <span className="text-[8px] font-bold bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">
+                                            {/* @ts-ignore */}
+                                            {cat.badge}
+                                        </span>
+                                    )}
+                                </div>
+                                <p className="text-lg font-bold font-display">{cat.value}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Trending Protocols */}
+            <section className="space-y-3">
+                <div className="flex justify-between items-center px-1">
+                    <h3 className="text-sm font-bold text-slate-200">Hot Protocols</h3>
+                    <Link to="/discovery" className="text-xs text-primary flex items-center hover:underline">
+                        View All <ChevronRight size={12} />
+                    </Link>
+                </div>
+
+                <div className="space-y-3">
+                    {topProtocols.map((p) => (
+                        <Link key={p.id} to={`/protocol/${p.id}`} className="block">
+                            <div className="glass-panel p-4 rounded-xl flex items-center justify-between group active:scale-[0.98] transition-all">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold overflow-hidden">
+                                        {p.icon ? "img" : p.symbol[0]}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-sm text-white group-hover:text-primary transition-colors">{p.name}</h4>
+                                        <span className="text-[10px] text-slate-400 bg-white/5 px-1.5 py-0.5 rounded">{p.category}</span>
                                     </div>
                                 </div>
+
                                 <div className="text-right">
-                                    <p className="text-accent font-bold">{protocol.apy.toFixed(1)}%</p>
-                                    <p className="text-xs text-text-secondary">APY</p>
+                                    <p className="text-primary font-bold font-display">{p.apyFormatted}</p>
+                                    <p className="text-[10px] text-slate-500">APY</p>
                                 </div>
-                            </Card>
-                        ))}
-                    </div>
-                )}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
             </section>
         </div>
-    )
+    );
 }

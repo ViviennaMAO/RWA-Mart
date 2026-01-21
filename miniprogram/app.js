@@ -1,5 +1,7 @@
 App({
     onLaunch: function () {
-        console.log('App launched')
+        // Cloud capability removed as it is not supported/needed for this version
+        console.log('RWA Mart App Launched');
+        this.globalData = {}
     }
 })

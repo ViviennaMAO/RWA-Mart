@@ -1,27 +1,14 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-background: #0a0b0d;
-  --color-surface: #12141a;
-  --color-primary: #3b82f6;
-  --color-secondary: #64748b;
-  --color-accent: #eab308;
-
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
-
-  --font-sans: Inter, system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    @apply bg-background text-white font-sans antialiased;
+  }
 }
 
-:root {
-  background-color: var(--color-background);
-  color: var(--color-text-primary);
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-background);
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-surface backdrop-blur-md border border-white/10;
 }
